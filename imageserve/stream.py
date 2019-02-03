@@ -1,6 +1,7 @@
 import glob
 import numpy as np
 import io
+from time import sleep
 from pathlib import Path
 
 try:
@@ -12,9 +13,10 @@ except ImportError:
 
 
 class Image_Stream(object):
-    def __init__(self, source_dir):
+    def __init__(self, source_dir, max_fr=None):
         self.__frame_stream = self.get_recent_frame()
         self.__source_dir = Path(source_dir)
+        self.__max_fr = max_fr
         if (not self.__source_dir.exists()):
             raise NotADirectoryError
 
@@ -25,6 +27,8 @@ class Image_Stream(object):
                 return np.zeros(shape=(10,10))
 
             for image in images:
+                if self.__max_fr is not None:
+                    sleep(1/self.__max_fr)
                 if USE_CV2:
                     cv_img = cv2.imread(image)
                     ret, jpeg = cv2.imencode('.jpg', cv_img)
