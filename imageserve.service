@@ -1,0 +1,13 @@
+[Unit]
+Description=Image Serve
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/bin/python3 -m imageserve /tmp -p 5001 -m 1
+
+[Install]
+WantedBy=multi-user.target

@@ -22,22 +22,26 @@ class Image_Stream(object):
 
     def get_recent_frame(self):
         while True:
-            images = glob.glob(str(self.__source_dir / '*.jpg'))
-            if len(images) == 0:
-                return np.zeros(shape=(10,10))
+            images = []
+            while len(images) < 1:
+                images = glob.glob(str(self.__source_dir / '*.jpg'))
+                sleep(1/self.__max_fr)
 
             for image in images:
                 if self.__max_fr is not None:
                     sleep(1/self.__max_fr)
-                if USE_CV2:
-                    cv_img = cv2.imread(image)
-                    ret, jpeg = cv2.imencode('.jpg', cv_img)
-                    yield jpeg.tobytes()
-                else:
-                    pil_img = Image.open(image)
-                    imgByteArr = io.BytesIO()
-                    pil_img.save(imgByteArr, format='JPEG')
-                    yield imgByteArr.getvalue()
+                try:
+                    if USE_CV2:
+                        cv_img = cv2.imread(image)
+                        ret, jpeg = cv2.imencode('.jpg', cv_img)
+                        yield jpeg.tobytes()
+                    else:
+                        pil_img = Image.open(image)
+                        imgByteArr = io.BytesIO()
+                        pil_img.save(imgByteArr, format='JPEG')
+                        yield imgByteArr.getvalue()
+                except Exception as ex:
+                    print('Something went wrong: {}'.format(ex))
 
     def get_frame(self):
         return next(self.__frame_stream)
